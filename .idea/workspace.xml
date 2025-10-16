@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="67a8be8e-21a0-4c55-9121-d1e4c137c9b9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/me/garyanov/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/me/garyanov/threads/MultithreadedQueueAdder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/garyanov/threads/racecondition/MultithreadedQueueAdder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/garyanov/threads/racecondition/MultithreadedQueueAdder.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +102,7 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/me/garyanov/threads/MultithreadedQueueAdder.java</url>
+          <url>file://$PROJECT_DIR$/src/main/java/me/garyanov/threads/racecondition/MultithreadedQueueAdder.java</url>
           <line>58</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
