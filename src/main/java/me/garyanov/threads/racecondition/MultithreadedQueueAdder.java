@@ -37,6 +37,14 @@ public class MultithreadedQueueAdder {
         while (true) {
             try {
                 sums[i] += queue.getNext();
+//                if (sums[i] > 1000 & sums[i] < 1200) {
+//                    try {
+//                        Thread.sleep(5_000l);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//
+//                }
             } catch (NoMoreElementsException e) {
                 break;
             }
