@@ -1,4 +1,4 @@
-package main.java.me.garyanov.threads.profiling;
+package me.garyanov.threads.profiling;
 
 import java.util.Map;
 import java.util.Random;

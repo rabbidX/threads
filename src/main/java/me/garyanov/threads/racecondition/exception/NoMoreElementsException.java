@@ -1,4 +1,4 @@
-package main.java.me.garyanov.threads.racecondition.exception;
+package me.garyanov.threads.racecondition.exception;
 
 public class NoMoreElementsException extends RuntimeException{
     public NoMoreElementsException() {

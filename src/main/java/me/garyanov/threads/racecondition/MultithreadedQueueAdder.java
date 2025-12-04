@@ -1,7 +1,7 @@
-package main.java.me.garyanov.threads.racecondition;
+package me.garyanov.threads.racecondition;
 
-import main.java.me.garyanov.threads.racecondition.exception.NoMoreElementsException;
-import main.java.me.garyanov.threads.racecondition.queue.NaturalNumbersQueue;
+import me.garyanov.threads.racecondition.exception.NoMoreElementsException;
+import me.garyanov.threads.racecondition.queue.NaturalNumbersQueue;
 
 import java.util.stream.IntStream;
 

@@ -1,8 +1,8 @@
-package main.java.me.garyanov.threads.ratelimiting;
+package me.garyanov.threads.ratelimiting;
 
 import lombok.AllArgsConstructor;
-import main.java.me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
-import main.java.me.garyanov.threads.ratelimiting.model.WorkItem;
+import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
+import me.garyanov.threads.ratelimiting.model.WorkItem;
 
 import java.time.Instant;
 import java.util.Random;

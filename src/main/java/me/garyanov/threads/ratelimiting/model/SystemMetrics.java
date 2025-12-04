@@ -1,4 +1,4 @@
-package main.java.me.garyanov.threads.ratelimiting.model;
+package me.garyanov.threads.ratelimiting.model;
 
 import lombok.Data;
 

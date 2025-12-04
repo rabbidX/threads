@@ -1,6 +1,6 @@
-package main.java.me.garyanov.threads.ratelimiting.limiter;
+package me.garyanov.threads.ratelimiting.limiter;
 
-import main.java.me.garyanov.threads.ratelimiting.model.SystemMetrics;
+import me.garyanov.threads.ratelimiting.model.SystemMetrics;
 
 public interface DynamicRateLimiter {
     /**

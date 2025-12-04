@@ -1,9 +1,9 @@
-package main.java.me.garyanov.threads.ratelimiting;
+package me.garyanov.threads.ratelimiting;
 
 import lombok.Data;
-import main.java.me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
-import main.java.me.garyanov.threads.ratelimiting.model.SystemMetrics;
-import main.java.me.garyanov.threads.ratelimiting.model.WorkItem;
+import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
+import me.garyanov.threads.ratelimiting.model.SystemMetrics;
+import me.garyanov.threads.ratelimiting.model.WorkItem;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;

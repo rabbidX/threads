@@ -1,4 +1,4 @@
-package main.java.me.garyanov.threads.racecondition.queue;
+package me.garyanov.threads.racecondition.queue;
 
 public class ConcurrentNaturalNumbersQueue extends NaturalNumbersQueue {
 

@@ -1,7 +1,7 @@
-package main.java.me.garyanov.threads.racecondition;
+package me.garyanov.threads.racecondition;
 
-import main.java.me.garyanov.threads.racecondition.queue.ConcurrentNaturalNumbersQueue;
-import main.java.me.garyanov.threads.racecondition.queue.NaturalNumbersQueue;
+import me.garyanov.threads.racecondition.queue.ConcurrentNaturalNumbersQueue;
+import me.garyanov.threads.racecondition.queue.NaturalNumbersQueue;
 
 public class RaceConditionDemo {
     public static void main(String[] args) {
