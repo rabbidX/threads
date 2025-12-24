@@ -7,8 +7,11 @@ import me.garyanov.threads.ratelimiting.model.WorkItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class RateLimiterDemo {
     public static void main(String[] args) {
@@ -18,27 +21,28 @@ public class RateLimiterDemo {
         double initialRate = 50.0; // items/sec
         double maxRate = 200.0;
         int maxBurst = 100;
-        int poolSize = 10;
 
-        Thread.getAllStackTraces().keySet().forEach(System.out::println);
         BlockingQueue<WorkItem> queue = new LinkedBlockingQueue<>(queueCapacity);
         DynamicRateLimiter rateLimiter = new TokenBucketRateLimiter(initialRate, maxRate, maxBurst);
+        ExecutorService producerExecutor = Executors.newFixedThreadPool(numProducers);
+        ExecutorService consumerExecutor = Executors.newFixedThreadPool(numConsumers);
+        ScheduledExecutorService monitoringExecutor = Executors.newSingleThreadScheduledExecutor();
 
         List<AdaptiveProducer> producers = new ArrayList<>();
         for (int i = 0; i < numProducers; i++) {
             AdaptiveProducer producer = new AdaptiveProducer("producer-" + i, queue, rateLimiter);
             producers.add(producer);
-            new Thread(producer).start();
+            producerExecutor.execute(producer);
         }
 
         List<AdaptiveConsumer> consumers = new ArrayList<>();
         for (int i = 0; i < numConsumers; i++) {
             AdaptiveConsumer consumer = new AdaptiveConsumer("consumer-" + i, queue, rateLimiter);
             consumers.add(consumer);
-            new Thread(consumer).start();
+            consumerExecutor.execute(consumer);
         }
 
-        var metricsCollector = new MetricsCollector(queue, producers, consumers, new ScheduledThreadPoolExecutor(poolSize));
+        var metricsCollector = new MetricsCollector(queue, producers, consumers, monitoringExecutor);
         metricsCollector.startMonitoring(rateLimiter);
 
         try {
@@ -47,15 +51,25 @@ public class RateLimiterDemo {
             Thread.currentThread().interrupt();
         }
 
-        Thread.getAllStackTraces().keySet().forEach(System.out::println);
         System.out.println("Try to stop demo");
-        producers.forEach(AdaptiveProducer::stop);
-        consumers.forEach(AdaptiveConsumer::stop);
-        var producersStopped = producers.stream().noneMatch(AdaptiveProducer::isRunning);
-        var consumersStopped = consumers.stream().noneMatch(AdaptiveConsumer::isRunning);
-        metricsCollector.stopMonitoring();
-        System.out.println("Producers stopped - " + producersStopped);
-        System.out.println("Consumers stopped - " + consumersStopped);
-        Thread.getAllStackTraces().keySet().forEach(System.out::println);
+        shutdownExecutor(producerExecutor, "Producer Executor");
+        shutdownExecutor(consumerExecutor, "Consumer Executor");
+        shutdownExecutor(monitoringExecutor, "Monitoring Executor");
+    }
+
+    private static void shutdownExecutor(ExecutorService executor, String name) {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                System.out.println(name + " did not terminate in time, forcing shutdown...");
+                executor.shutdownNow();
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    System.err.println(name + " could not be terminated");
+                }
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 }
