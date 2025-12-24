@@ -5,6 +5,7 @@ import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
 import me.garyanov.threads.ratelimiting.model.SystemMetrics;
 import me.garyanov.threads.ratelimiting.model.WorkItem;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,6 +26,10 @@ public class MetricsCollector {
         }, 1, 1, TimeUnit.SECONDS); // Adjust every second
     }
 
+    public void stopMonitoring() {
+        scheduler.shutdown();
+    }
+
     private void logMetrics(SystemMetrics metrics) {
     }
 
@@ -33,8 +38,9 @@ public class MetricsCollector {
         double producerRate = calculateProducerRate();
         double consumerRate = calculateConsumerRate();
         double avgLatency = calculateAverageLatency();
+        double systemThroughput = calculateSystemThroughput();
 
-        return new SystemMetrics(queueSize, producerRate, consumerRate, avgLatency);
+        return new SystemMetrics(queueSize, producerRate, consumerRate, avgLatency, systemThroughput, Instant.now());
     }
 
     private double calculateAverageLatency() {
@@ -46,6 +52,10 @@ public class MetricsCollector {
     }
 
     private double calculateProducerRate() {
+        return 0;
+    }
+
+    private double calculateSystemThroughput() {
         return 0;
     }
 }

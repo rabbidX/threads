@@ -5,6 +5,7 @@ import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
 import me.garyanov.threads.ratelimiting.model.WorkItem;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,7 @@ public class AdaptiveConsumer implements Runnable {
         // Simulate processing time with variability
         int processingTime = 50 + random.nextInt(100); // 50-150ms
         try {
+            System.out.println(Arrays.toString(item.getPayload()) + " is processed");
             Thread.sleep(processingTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -53,5 +55,9 @@ public class AdaptiveConsumer implements Runnable {
 
     public void stop() {
         running.set(false);
+    }
+
+    public boolean isRunning() {
+        return running.get();
     }
 }

@@ -6,6 +6,7 @@ import me.garyanov.threads.ratelimiting.model.WorkItem;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -29,6 +30,8 @@ public class AdaptiveProducer implements Runnable {
                 if (!offered) {
                     // Handle queue full scenario - backpressure
                     handleBackpressure(item);
+                } else {
+                    System.out.println(Arrays.toString(item.getPayload()) + " is offered");
                 }
             }
 
@@ -59,5 +62,9 @@ public class AdaptiveProducer implements Runnable {
 
     public void stop() {
         running.set(false);
+    }
+
+    public boolean isRunning() {
+        return running.get();
     }
 }

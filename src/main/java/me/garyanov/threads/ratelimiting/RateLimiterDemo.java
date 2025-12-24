@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class RateLimiterDemo {
     public static void main(String[] args) {
@@ -17,7 +18,9 @@ public class RateLimiterDemo {
         double initialRate = 50.0; // items/sec
         double maxRate = 200.0;
         int maxBurst = 100;
+        int poolSize = 10;
 
+        Thread.getAllStackTraces().keySet().forEach(System.out::println);
         BlockingQueue<WorkItem> queue = new LinkedBlockingQueue<>(queueCapacity);
         DynamicRateLimiter rateLimiter = new TokenBucketRateLimiter(initialRate, maxRate, maxBurst);
 
@@ -35,16 +38,24 @@ public class RateLimiterDemo {
             new Thread(consumer).start();
         }
 
-        var metricsCollector = new MetricsCollector(queue, producers, consumers, );
+        var metricsCollector = new MetricsCollector(queue, producers, consumers, new ScheduledThreadPoolExecutor(poolSize));
         metricsCollector.startMonitoring(rateLimiter);
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(10_000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
+        Thread.getAllStackTraces().keySet().forEach(System.out::println);
+        System.out.println("Try to stop demo");
         producers.forEach(AdaptiveProducer::stop);
         consumers.forEach(AdaptiveConsumer::stop);
+        var producersStopped = producers.stream().noneMatch(AdaptiveProducer::isRunning);
+        var consumersStopped = consumers.stream().noneMatch(AdaptiveConsumer::isRunning);
+        metricsCollector.stopMonitoring();
+        System.out.println("Producers stopped - " + producersStopped);
+        System.out.println("Consumers stopped - " + consumersStopped);
+        Thread.getAllStackTraces().keySet().forEach(System.out::println);
     }
 }
