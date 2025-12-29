@@ -4,6 +4,7 @@ import lombok.Data;
 import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
 import me.garyanov.threads.ratelimiting.model.SystemMetrics;
 import me.garyanov.threads.ratelimiting.model.WorkItem;
+import me.garyanov.threads.ratelimiting.producer.Producer;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Data
 public class MetricsCollector {
     private final BlockingQueue<WorkItem> queue;
-    private final List<AdaptiveProducer> producers;
+    private final List<Producer> producers;
     private final List<AdaptiveConsumer> consumers;
     private final ScheduledExecutorService scheduler;
 
@@ -35,12 +36,13 @@ public class MetricsCollector {
 
     private SystemMetrics collectMetrics() {
         int queueSize = queue.size();
+        int capacity = queue.remainingCapacity() + queueSize;
         double producerRate = calculateProducerRate();
         double consumerRate = calculateConsumerRate();
         double avgLatency = calculateAverageLatency();
         double systemThroughput = calculateSystemThroughput();
 
-        return new SystemMetrics(queueSize, producerRate, consumerRate, avgLatency, systemThroughput, Instant.now());
+        return new SystemMetrics(queueSize, capacity, producerRate, consumerRate, avgLatency, systemThroughput, Instant.now());
     }
 
     private double calculateAverageLatency() {
@@ -56,6 +58,6 @@ public class MetricsCollector {
     }
 
     private double calculateSystemThroughput() {
-        return 0;
+        return queue.remainingCapacity();
     }
 }

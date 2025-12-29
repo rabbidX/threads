@@ -1,4 +1,4 @@
-package me.garyanov.threads.ratelimiting;
+package me.garyanov.threads.ratelimiting.producer;
 
 import lombok.AllArgsConstructor;
 import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
@@ -7,24 +7,22 @@ import me.garyanov.threads.ratelimiting.model.WorkItem;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @AllArgsConstructor
-public class AdaptiveProducer implements Runnable {
+public class AdaptiveProducer implements Producer {
     private final String id;
     private final BlockingQueue<WorkItem> queue;
+    private final BlockingQueue<WorkItem> deadLetterQueue;
     private final DynamicRateLimiter rateLimiter;
-    private final AtomicBoolean running = new AtomicBoolean(true);
-    private final Random random = new Random();
 
     @Override
     public void run() {
-        while (running.get()) {
+        while (isRunning()) {
             if (rateLimiter.tryAcquire()) {
+                System.out.println("Successful acquire rate limiter");
                 WorkItem item = createWorkItem();
                 boolean offered = queue.offer(item);
                 if (!offered) {
@@ -33,11 +31,13 @@ public class AdaptiveProducer implements Runnable {
                 } else {
                     System.out.println(Arrays.toString(item.getPayload()) + " is offered");
                 }
+            } else {
+                System.out.println("Attempt to acquire rate limiter was failed");
             }
 
             // Control production rate with jitter for realism
             try {
-                Thread.sleep(calculateNextInterval());
+                Thread.sleep(rateLimiter.calculateNextInterval());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
@@ -50,21 +50,8 @@ public class AdaptiveProducer implements Runnable {
     }
 
     private void handleBackpressure(WorkItem item) {
+        deadLetterQueue.add(item);
+        System.out.println(Arrays.toString(item.getPayload()) + " add to Dead Letter Queue");
     }
 
-    private long calculateNextInterval() {
-        double rate = rateLimiter.getCurrentRate();
-        double intervalMs = 1000.0 / rate;
-        // Add ±20% jitter to simulate real-world variability
-        double jitter = 0.2 * intervalMs * (random.nextDouble() * 2 - 1);
-        return Math.max(1, (long) (intervalMs + jitter));
-    }
-
-    public void stop() {
-        running.set(false);
-    }
-
-    public boolean isRunning() {
-        return running.get();
-    }
 }

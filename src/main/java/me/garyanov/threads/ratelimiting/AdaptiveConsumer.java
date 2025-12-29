@@ -23,7 +23,7 @@ public class AdaptiveConsumer implements Runnable {
 
     @Override
     public void run() {
-        while (running.get()) {
+        while (isRunning()) {
             try {
                 WorkItem item = queue.poll(100, TimeUnit.MILLISECONDS);
                 if (item != null) {
@@ -43,8 +43,7 @@ public class AdaptiveConsumer implements Runnable {
     }
 
     private void simulateProcessing(WorkItem item) {
-        // Simulate processing time with variability
-        int processingTime = 50 + random.nextInt(100); // 50-150ms
+         int processingTime = 50 + random.nextInt(100); // 50-150ms
         try {
             System.out.println(Arrays.toString(item.getPayload()) + " is processed");
             Thread.sleep(processingTime);

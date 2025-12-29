@@ -23,4 +23,9 @@ public interface DynamicRateLimiter {
      * Get current burst capacity
      */
     int getCurrentBurst();
+
+    /**
+    * Get interval for producer pause
+    */
+    long calculateNextInterval();
 }
