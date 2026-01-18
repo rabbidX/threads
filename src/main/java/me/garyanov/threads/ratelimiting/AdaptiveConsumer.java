@@ -2,12 +2,14 @@ package me.garyanov.threads.ratelimiting;
 
 import lombok.AllArgsConstructor;
 import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
+import me.garyanov.threads.ratelimiting.model.LastProcessedItemsCollection;
 import me.garyanov.threads.ratelimiting.model.WorkItem;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,7 +18,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AdaptiveConsumer implements Runnable {
     private final String id;
     private final BlockingQueue<WorkItem> queue;
-    private final DynamicRateLimiter rateLimiter;
+    private final ExecutorService lastItemCollector;
+    private final LastProcessedItemsCollection lastItems;
+
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicLong processedCount = new AtomicLong(0);
     private final Random random = new Random();
@@ -34,6 +38,7 @@ public class AdaptiveConsumer implements Runnable {
 
                     item.setProcessingEndTime(Instant.now());
                     processedCount.incrementAndGet();
+                    lastItemCollector.execute(() -> lastItems.add(item));
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

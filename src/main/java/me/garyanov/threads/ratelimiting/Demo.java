@@ -2,6 +2,7 @@ package me.garyanov.threads.ratelimiting;
 
 import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
 import me.garyanov.threads.ratelimiting.limiter.TokenBucketRateLimiter;
+import me.garyanov.threads.ratelimiting.model.LastProcessedItemsCollection;
 import me.garyanov.threads.ratelimiting.model.WorkItem;
 import me.garyanov.threads.ratelimiting.producer.AdaptiveProducer;
 import me.garyanov.threads.ratelimiting.producer.DeadLetterQueueProcessor;
@@ -24,7 +25,9 @@ public abstract class Demo {
         DynamicRateLimiter rateLimiter = new TokenBucketRateLimiter(initialRate, maxRate, maxBurst);
         ExecutorService producerExecutor = Executors.newFixedThreadPool(numProducers + 1);
         ExecutorService consumerExecutor = Executors.newFixedThreadPool(numConsumers);
+        ExecutorService lastItemsCollector = Executors.newFixedThreadPool(numConsumers);
         ScheduledExecutorService monitoringExecutor = Executors.newSingleThreadScheduledExecutor();
+        LastProcessedItemsCollection lastItems = new LastProcessedItemsCollection();
 
         List<Producer> producers = new ArrayList<>();
         for (int i = 0; i < numProducers; i++) {
@@ -38,12 +41,12 @@ public abstract class Demo {
 
         List<AdaptiveConsumer> consumers = new ArrayList<>();
         for (int i = 0; i < numConsumers; i++) {
-            AdaptiveConsumer consumer = new AdaptiveConsumer("consumer-" + i, queue, rateLimiter);
+            AdaptiveConsumer consumer = new AdaptiveConsumer("consumer-" + i, queue, lastItemsCollector, lastItems);
             consumers.add(consumer);
             consumerExecutor.execute(consumer);
         }
 
-        var metricsCollector = new MetricsCollector(queue, producers, consumers, monitoringExecutor);
+        var metricsCollector = new MetricsCollector(queue, producers, consumers, monitoringExecutor, lastItems);
         metricsCollector.startMonitoring(rateLimiter);
 
         try {
@@ -57,6 +60,7 @@ public abstract class Demo {
         consumers.forEach(AdaptiveConsumer::stop);
         shutdownExecutor(producerExecutor, "Producer Executor");
         shutdownExecutor(consumerExecutor, "Consumer Executor");
+        shutdownExecutor(lastItemsCollector, "Last items collector");
         shutdownExecutor(monitoringExecutor, "Monitoring Executor");
     }
 

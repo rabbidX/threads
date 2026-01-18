@@ -14,6 +14,7 @@ public class TokenBucketRateLimiter implements DynamicRateLimiter {
     private final ReentrantLock lock = new ReentrantLock();
     Random random = new Random();
 
+
     public TokenBucketRateLimiter(double initialRate, double maxRate, int maxBurst) {
         this.currentRate = initialRate;
         this.maxRate = maxRate;
@@ -96,7 +97,7 @@ public class TokenBucketRateLimiter implements DynamicRateLimiter {
 
     private double calculateOptimalRate(SystemMetrics metrics) {
         double queueUtilization = (double) metrics.queueSize() / metrics.queueCapacity();
-        double currentThroughput = metrics.systemThroughput();
+        int currentThroughput = metrics.systemThroughput();
 
         // Control algorithm - you can implement different strategies:
 

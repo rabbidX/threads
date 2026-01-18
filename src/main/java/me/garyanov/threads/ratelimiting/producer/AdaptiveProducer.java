@@ -46,7 +46,12 @@ public class AdaptiveProducer implements Producer {
     }
 
     private WorkItem createWorkItem() {
-        return new WorkItem(UUID.randomUUID().toString(), Instant.now(), id, UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+        var payload = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+        return new WorkItem(
+                UUID.randomUUID().toString() //id
+                , Instant.now()              // created at
+                , id                         // producer id
+                , payload);
     }
 
     private void handleBackpressure(WorkItem item) {

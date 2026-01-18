@@ -2,6 +2,7 @@ package me.garyanov.threads.ratelimiting;
 
 import lombok.Data;
 import me.garyanov.threads.ratelimiting.limiter.DynamicRateLimiter;
+import me.garyanov.threads.ratelimiting.model.LastProcessedItemsCollection;
 import me.garyanov.threads.ratelimiting.model.SystemMetrics;
 import me.garyanov.threads.ratelimiting.model.WorkItem;
 import me.garyanov.threads.ratelimiting.producer.Producer;
@@ -18,12 +19,12 @@ public class MetricsCollector {
     private final List<Producer> producers;
     private final List<AdaptiveConsumer> consumers;
     private final ScheduledExecutorService scheduler;
+    private final LastProcessedItemsCollection lastItems;
 
     public void startMonitoring(DynamicRateLimiter rateLimiter) {
         scheduler.scheduleAtFixedRate(() -> {
             SystemMetrics metrics = collectMetrics();
             rateLimiter.updateRateLimit(metrics);
-            logMetrics(metrics);
         }, 1, 1, TimeUnit.SECONDS); // Adjust every second
     }
 
@@ -31,33 +32,20 @@ public class MetricsCollector {
         scheduler.shutdown();
     }
 
-    private void logMetrics(SystemMetrics metrics) {
-    }
-
     private SystemMetrics collectMetrics() {
         int queueSize = queue.size();
         int capacity = queue.remainingCapacity() + queueSize;
-        double producerRate = calculateProducerRate();
-        double consumerRate = calculateConsumerRate();
         double avgLatency = calculateAverageLatency();
-        double systemThroughput = calculateSystemThroughput();
+        int systemThroughput = calculateSystemThroughput();
 
-        return new SystemMetrics(queueSize, capacity, producerRate, consumerRate, avgLatency, systemThroughput, Instant.now());
+        return new SystemMetrics(queueSize, capacity, avgLatency, systemThroughput, Instant.now());
     }
 
     private double calculateAverageLatency() {
-        return 0;
+        return lastItems.getAverageProcessingTimeMillis();
     }
 
-    private double calculateConsumerRate() {
-        return 0;
-    }
-
-    private double calculateProducerRate() {
-        return 0;
-    }
-
-    private double calculateSystemThroughput() {
-        return queue.remainingCapacity();
+    private int calculateSystemThroughput() {
+        return lastItems.getCountLastSecond();
     }
 }
